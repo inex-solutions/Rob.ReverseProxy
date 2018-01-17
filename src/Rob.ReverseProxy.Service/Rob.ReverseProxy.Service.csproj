@@ -71,6 +71,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ContentCopying\BitwiseCopyStrategy.cs" />
+    <Compile Include="ContentCopying\CopyStrategyFactory.cs" />
+    <Compile Include="ContentCopying\ICopyStrategy.cs" />
+    <Compile Include="ContentCopying\NonChunkedCopyStrategy.cs" />
     <Compile Include="ReverseProxy.cs" />
     <Compile Include="ReverseProxyExtensions.cs" />
     <Compile Include="ReverseProxyService.cs">

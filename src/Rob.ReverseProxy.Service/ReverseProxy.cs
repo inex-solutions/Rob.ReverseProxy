@@ -6,16 +6,14 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Owin;
+using Rob.ReverseProxy.Service.ContentCopying;
 
 namespace Rob.ReverseProxy.Service
 { 
     public class ReverseProxy
     {
-        private readonly Func<IDictionary<string, object>, Task> _next;
-
         public ReverseProxy(Func<IDictionary<string, object>, Task> next)
         {
-            _next = next;
         }
 
         public async Task Invoke(IDictionary<string, object> env)
@@ -69,25 +67,8 @@ namespace Rob.ReverseProxy.Service
                         outerOwinContext.Response.Headers[contentHeader.Key] = contentHeader.Value.FirstOrDefault();
                     }
 
-                    Stream streamToReadFrom = await forwardingResponse.Content.ReadAsStreamAsync();
-
-                    if (forwardingResponse.Headers.TransferEncodingChunked.HasValue
-                        && forwardingResponse.Headers.TransferEncodingChunked.Value)
-                    {
-                        int read;
-                        while ((read = streamToReadFrom.ReadByte()) != -1)
-                        {
-                            cancellationTokenSource.CancelAfter(100000);
-
-                            outerOwinContext.Response.Body.WriteByte((byte)read);
-                            //Console.Write(".");
-                        }
-                    }
-                    else
-                    {
-                        //Console.Write($"-{forwardingResponse.Content.Headers.ContentLength}");
-                        await streamToReadFrom.CopyToAsync(outerOwinContext.Response.Body);
-                    }
+                    var copyStrategy = CopyStrategyFactory.GetCopyStrategy(forwardingResponse);
+                    copyStrategy.Copy(forwardingResponse, outerOwinContext.Response, cancellationTokenSource);
                 }
 
             }
