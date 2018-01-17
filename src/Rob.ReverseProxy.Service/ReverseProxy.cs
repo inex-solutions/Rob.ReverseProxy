@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Owin;
 
@@ -19,10 +20,11 @@ namespace Rob.ReverseProxy.Service
 
         public async Task Invoke(IDictionary<string, object> env)
         {
+            string sourceRequestInfo = "";
             try
             {
                 var outerOwinContext = new OwinContext(env);
-
+                sourceRequestInfo = $"{outerOwinContext.Request.Method} {outerOwinContext.Request.Uri} ({outerOwinContext.Request.Context})";
                 var forwardingClient = new HttpClient();
                 var forwardingRequest = new HttpRequestMessage();
                 forwardingRequest.Method = new HttpMethod(outerOwinContext.Request.Method);
@@ -48,7 +50,9 @@ namespace Rob.ReverseProxy.Service
                 forwardingRequest.Headers.Host = host;
                 forwardingRequest.RequestUri = new Uri($"http://{host}{outerOwinContext.Request.Path}{outerOwinContext.Request.QueryString}");
 
-                var forwardingResponse = await forwardingClient.SendAsync(forwardingRequest);
+                var cancellationToken = new CancellationTokenSource(5000).Token;
+
+                var forwardingResponse = await forwardingClient.SendAsync(forwardingRequest, cancellationToken);
                 outerOwinContext.Response.StatusCode = (int)forwardingResponse.StatusCode;
                 outerOwinContext.Response.ContentType = forwardingResponse.Content?.Headers.ContentType?.MediaType;
                 outerOwinContext.Response.ReasonPhrase = forwardingResponse.ReasonPhrase;
@@ -72,6 +76,8 @@ namespace Rob.ReverseProxy.Service
             }
             catch (Exception e)
             {
+                Console.WriteLine("UNHANDLED EXCEPTION:");
+                Console.WriteLine(sourceRequestInfo);
                 Console.WriteLine(e);
                 throw;
             }
