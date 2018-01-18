@@ -76,7 +76,10 @@
     <Compile Include="ContentCopying\ICopyStrategy.cs" />
     <Compile Include="ContentCopying\NonChunkedCopyStrategy.cs" />
     <Compile Include="ConversionExtensions.cs" />
+    <Compile Include="Configuration\ForwardingEntry.cs" />
+    <Compile Include="Configuration\ForwardingEntryMap.cs" />
     <Compile Include="ReverseProxy.cs" />
+    <Compile Include="Configuration\ReverseProxyConfiguration.cs" />
     <Compile Include="ReverseProxyExtensions.cs" />
     <Compile Include="ReverseProxyService.cs">
       <SubType>Component</SubType>

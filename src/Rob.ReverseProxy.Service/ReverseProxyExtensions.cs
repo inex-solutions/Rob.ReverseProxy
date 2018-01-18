@@ -20,14 +20,15 @@
 #endregion
 
 using Owin;
+using Rob.ReverseProxy.Service.Configuration;
 
 namespace Rob.ReverseProxy.Service
 {
     public static class ReverseProxyExtensions
     {
-        public static void UseReverseProxy(this IAppBuilder app)
+        public static void UseReverseProxy(this IAppBuilder app, ReverseProxyConfiguration configuration)
         {
-            app.Use<ReverseProxy>();
+            app.Use<ReverseProxy>(configuration);
         }
     }
 }

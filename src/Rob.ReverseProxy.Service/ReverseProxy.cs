@@ -25,14 +25,18 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Owin;
+using Rob.ReverseProxy.Service.Configuration;
 using Rob.ReverseProxy.Service.ContentCopying;
 
 namespace Rob.ReverseProxy.Service
 { 
     public class ReverseProxy
     {
-        public ReverseProxy(Func<IDictionary<string, object>, Task> next)
+        private readonly ForwardingEntryMap _forwardingEntryMap;
+
+        public ReverseProxy(Func<IDictionary<string, object>, Task> next, ReverseProxyConfiguration configuration)
         {
+            _forwardingEntryMap = new ForwardingEntryMap(configuration.ForwardingEntries);
         }
 
         public async Task Invoke(IDictionary<string, object> env)
@@ -43,9 +47,17 @@ namespace Rob.ReverseProxy.Service
                 var outerOwinContext = new OwinContext(env);
                 sourceRequestInfo = $"{outerOwinContext.Request.Method} {outerOwinContext.Request.Uri} ({outerOwinContext.Request.Context})";
 
+                string host;
+                if (!_forwardingEntryMap.TryGetForwardingEntry(outerOwinContext.Request.Host.Value, out host)
+                    && !_forwardingEntryMap.TryGetForwardingEntry("*", out host))
+                {
+                    outerOwinContext.Response.StatusCode = 503;
+                    outerOwinContext.Response.ReasonPhrase = "Service Unavailable";
+                    return;
+                }
+
                 var forwardingClient = new HttpClient();
 
-                var host = "localhost:33333";
                 var forwardingRequest = outerOwinContext.Request.CreateHttpRequestMessageFromRequest(host);
                 
                 var cancellationTokenSource = new CancellationTokenSource(100000);

@@ -19,17 +19,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #endregion
 
-using System.Net.Http;
-using System.Threading;
-using Microsoft.Owin;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace Rob.ReverseProxy.Service.ContentCopying
+namespace Rob.ReverseProxy.Service.Configuration
 {
-    public class NonChunkedCopyStrategy : ICopyStrategy
+    public class ForwardingEntryMap
     {
-        public async void Copy(HttpResponseMessage source, IOwinResponse target, CancellationTokenSource cancellationTokenSource)
+        private readonly Dictionary<string, string> _forwardingEntries;
+
+        public ForwardingEntryMap(IEnumerable<ForwardingEntry> forwardingEntries)
         {
-            await source.Content.CopyToAsync(target.Body);
+            _forwardingEntries = forwardingEntries.ToDictionary(fe => fe.SourceHost, fe => fe.TargetHost, StringComparer.OrdinalIgnoreCase);
+        }
+
+        public string this[string sourceHost] => _forwardingEntries[sourceHost];
+
+        public bool TryGetForwardingEntry(string sourceHost, out string targetHost)
+        {
+            return _forwardingEntries.TryGetValue(sourceHost, out targetHost);
         }
     }
 }

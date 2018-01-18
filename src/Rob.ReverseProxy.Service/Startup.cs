@@ -20,6 +20,7 @@
 #endregion
 
 using Owin;
+using Rob.ReverseProxy.Service.Configuration;
 
 namespace Rob.ReverseProxy.Service
 {
@@ -27,7 +28,14 @@ namespace Rob.ReverseProxy.Service
     {
         public void Configuration(IAppBuilder app)
         {
-            app.UseReverseProxy();
+            app.UseReverseProxy(new ReverseProxyConfiguration
+            {
+                ForwardingEntries = new []
+                {
+                    new ForwardingEntry{SourceHost = "exodev2017:9900", TargetHost = "localhost:33333"},
+                    new ForwardingEntry{SourceHost = "localhost:9900", TargetHost = "localhost:33333"}
+                }
+            });
         }
     }
 }
