@@ -8,6 +8,5 @@ namespace Rob.ReverseProxy.Service
         {
             app.Use<ReverseProxy>();
         }
-
     }
 }
