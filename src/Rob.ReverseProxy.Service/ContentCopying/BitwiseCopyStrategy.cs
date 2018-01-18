@@ -36,7 +36,6 @@ namespace Rob.ReverseProxy.Service.ContentCopying
 
             while ((read = forwardingResponseStream.ReadByte()) != -1)
             {
-                Console.Write(".");
                 cancellationTokenSource.CancelAfter(100000);
                 target.Body.WriteByte((byte)read);
             }

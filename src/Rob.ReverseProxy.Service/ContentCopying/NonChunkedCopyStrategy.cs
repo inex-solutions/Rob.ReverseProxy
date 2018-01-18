@@ -30,7 +30,6 @@ namespace Rob.ReverseProxy.Service.ContentCopying
     {
         public async void Copy(HttpResponseMessage source, IOwinResponse target, CancellationTokenSource cancellationTokenSource)
         {
-            Console.Write("-");
             await source.Content.CopyToAsync(target.Body);
         }
     }
