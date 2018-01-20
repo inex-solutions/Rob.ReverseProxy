@@ -54,6 +54,7 @@ namespace Rob.ReverseProxy.Middleware
                     && !_forwardingEntryMap.TryGetForwardingEntry("*", out host))
                 {
                     await _next.Invoke(env);
+                    return;
                 }
 
                 var forwardingClient = new HttpClient();

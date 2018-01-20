@@ -19,6 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #endregion
 
+using Microsoft.Owin.FileSystems;
+using Microsoft.Owin.StaticFiles;
 using Owin;
 using Rob.ReverseProxy.Middleware;
 using Rob.ReverseProxy.Middleware.Configuration;
@@ -33,10 +35,18 @@ namespace Rob.ReverseProxy.Service
             {
                 ForwardingEntries = new []
                 {
-                    new ForwardingEntry{SourceHost = "exodev2017:9900", TargetHost = "localhost:33333"},
                     new ForwardingEntry{SourceHost = "localhost:9900", TargetHost = "localhost:33333"}
                 }
             });
+
+            var options = new FileServerOptions
+            {
+                EnableDirectoryBrowsing = true,
+                EnableDefaultFiles = true,
+                DefaultFilesOptions = { DefaultFileNames = { "index.html" } },
+                FileSystem = new PhysicalFileSystem("static-files")
+            };
+            app.UseFileServer(options);
         }
     }
 }
