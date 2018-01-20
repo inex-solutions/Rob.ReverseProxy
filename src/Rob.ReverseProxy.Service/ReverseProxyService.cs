@@ -35,6 +35,7 @@ namespace Rob.ReverseProxy.Service
         {
             var startOptions = new StartOptions();
             startOptions.Urls.Add("http://*:9900");
+            startOptions.Urls.Add("http://*:9999");
             WebApp.Start<Startup>(startOptions);
         }
 

@@ -18,12 +18,17 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #endregion
-namespace Rob.ReverseProxy.Service.Configuration
-{
-    public class ForwardingEntry
-    {
-        public string SourceHost { get; set; }
 
-        public string TargetHost { get; set; }
+using Owin;
+using Rob.ReverseProxy.Middleware.Configuration;
+
+namespace Rob.ReverseProxy.Middleware
+{
+    public static class ReverseProxyExtensions
+    {
+        public static void UseReverseProxy(this IAppBuilder app, ReverseProxyConfiguration configuration)
+        {
+            app.Use<ReverseProxy>(configuration);
+        }
     }
 }

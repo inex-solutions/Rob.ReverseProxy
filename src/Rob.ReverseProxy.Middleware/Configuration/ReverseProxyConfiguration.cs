@@ -18,18 +18,10 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #endregion
-
-using System.Net.Http;
-
-namespace Rob.ReverseProxy.Service.ContentCopying
+namespace Rob.ReverseProxy.Middleware.Configuration
 {
-    public class CopyStrategyFactory
+    public class ReverseProxyConfiguration
     {
-        public static ICopyStrategy GetCopyStrategy(HttpResponseMessage responseMessage)
-        {
-            return (responseMessage.Headers.TransferEncodingChunked.HasValue && responseMessage.Headers.TransferEncodingChunked.Value)
-                ? (ICopyStrategy)new BitwiseCopyStrategy()
-                : (ICopyStrategy)new NonChunkedCopyStrategy();
-        }
+        public ForwardingEntry[] ForwardingEntries { get; set; }
     }
 }

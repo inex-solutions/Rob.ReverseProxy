@@ -71,16 +71,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ContentCopying\BitwiseCopyStrategy.cs" />
-    <Compile Include="ContentCopying\CopyStrategyFactory.cs" />
-    <Compile Include="ContentCopying\ICopyStrategy.cs" />
-    <Compile Include="ContentCopying\NonChunkedCopyStrategy.cs" />
-    <Compile Include="ConversionExtensions.cs" />
-    <Compile Include="Configuration\ForwardingEntry.cs" />
-    <Compile Include="Configuration\ForwardingEntryMap.cs" />
-    <Compile Include="ReverseProxy.cs" />
-    <Compile Include="Configuration\ReverseProxyConfiguration.cs" />
-    <Compile Include="ReverseProxyExtensions.cs" />
     <Compile Include="ReverseProxyService.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -94,6 +84,12 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Rob.ReverseProxy.Middleware\Rob.ReverseProxy.Middleware.csproj">
+      <Project>{B35F0760-3081-4B90-8959-FD1AAB15D1C3}</Project>
+      <Name>Rob.ReverseProxy.Middleware</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

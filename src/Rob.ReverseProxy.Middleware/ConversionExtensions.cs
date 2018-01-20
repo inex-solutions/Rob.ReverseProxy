@@ -25,7 +25,7 @@ using System.Linq;
 using System.Net.Http;
 using Microsoft.Owin;
 
-namespace Rob.ReverseProxy.Service
+namespace Rob.ReverseProxy.Middleware
 {
     public static class ConversionExtensions
     {

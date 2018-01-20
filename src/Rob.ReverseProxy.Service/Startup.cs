@@ -20,7 +20,8 @@
 #endregion
 
 using Owin;
-using Rob.ReverseProxy.Service.Configuration;
+using Rob.ReverseProxy.Middleware;
+using Rob.ReverseProxy.Middleware.Configuration;
 
 namespace Rob.ReverseProxy.Service
 {

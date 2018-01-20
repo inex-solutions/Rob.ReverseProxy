@@ -19,16 +19,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #endregion
 
-using Owin;
-using Rob.ReverseProxy.Service.Configuration;
+using System.Net.Http;
 
-namespace Rob.ReverseProxy.Service
+namespace Rob.ReverseProxy.Middleware.ContentCopying
 {
-    public static class ReverseProxyExtensions
+    public class CopyStrategyFactory
     {
-        public static void UseReverseProxy(this IAppBuilder app, ReverseProxyConfiguration configuration)
+        public static ICopyStrategy GetCopyStrategy(HttpResponseMessage responseMessage)
         {
-            app.Use<ReverseProxy>(configuration);
+            return (responseMessage.Headers.TransferEncodingChunked.HasValue && responseMessage.Headers.TransferEncodingChunked.Value)
+                ? (ICopyStrategy)new BitwiseCopyStrategy()
+                : (ICopyStrategy)new NonChunkedCopyStrategy();
         }
     }
 }

@@ -23,7 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Rob.ReverseProxy.Service.Configuration
+namespace Rob.ReverseProxy.Middleware.Configuration
 {
     public class ForwardingEntryMap
     {
