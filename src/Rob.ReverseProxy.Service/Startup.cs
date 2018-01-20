@@ -19,6 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #endregion
 
+using System.Net;
+using System.Web.Http;
 using Microsoft.Owin.FileSystems;
 using Microsoft.Owin.StaticFiles;
 using Owin;
@@ -33,11 +35,17 @@ namespace Rob.ReverseProxy.Service
         {
             app.UseReverseProxy(new ReverseProxyConfiguration
             {
-                ForwardingEntries = new []
+                ForwardingEntries = new[]
                 {
-                    new ForwardingEntry{SourceHost = "localhost:9900", TargetHost = "localhost:33333"}
+
+                    new ForwardingEntry{SourceHost = "*:9800", TargetHost = "localhost:9090", AllowRoles = new []{"Reverse Proxy Users", "Reverse Proxy Users Too"}},
+                    new ForwardingEntry{SourceHost = "*:9900", TargetHost = "localhost:33333", AllowRoles = new []{"Reverse Proxy Users", "Reverse Proxy Users Too"}},
+                    new ForwardingEntry{SourceHost = "*:9901", TargetHost = "localhost:33633", AllowRoles = new []{"Reverse Proxy Users", "Reverse Proxy Users Too"}}
                 }
             });
+
+            HttpListener listener = (HttpListener)app.Properties["System.Net.HttpListener"];
+            listener.AuthenticationSchemes = AuthenticationSchemes.IntegratedWindowsAuthentication;
 
             var options = new FileServerOptions
             {
@@ -47,6 +55,15 @@ namespace Rob.ReverseProxy.Service
                 FileSystem = new PhysicalFileSystem("static-files")
             };
             app.UseFileServer(options);
+
+            HttpConfiguration config = new HttpConfiguration();
+            config.Routes.MapHttpRoute(
+                name: "DefaultApi",
+                routeTemplate: "api/{controller}/{id}",
+                defaults: new { id = RouteParameter.Optional }
+            );
+
+            app.UseWebApi(config);
         }
     }
 }

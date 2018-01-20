@@ -25,5 +25,7 @@ namespace Rob.ReverseProxy.Middleware.Configuration
         public string SourceHost { get; set; }
 
         public string TargetHost { get; set; }
+
+        public string[] AllowRoles { get; set; }
     }
 }

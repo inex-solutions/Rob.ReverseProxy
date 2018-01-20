@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -49,17 +50,26 @@ namespace Rob.ReverseProxy.Middleware
                 var outerOwinContext = new OwinContext(env);
                 sourceRequestInfo = $"{outerOwinContext.Request.Method} {outerOwinContext.Request.Uri} ({outerOwinContext.Request.Context})";
 
-                string host;
-                if (!_forwardingEntryMap.TryGetForwardingEntry(outerOwinContext.Request.Host.Value, out host)
-                    && !_forwardingEntryMap.TryGetForwardingEntry("*", out host))
+                ForwardingEntry forwardingEntry;
+                if (!_forwardingEntryMap.TryGetForwardingEntry(outerOwinContext.Request.Host.Value, out forwardingEntry)
+                    && !_forwardingEntryMap.TryGetForwardingEntry($"*:{outerOwinContext.Request.LocalPort}", out forwardingEntry))
                 {
                     await _next.Invoke(env);
                     return;
                 }
 
+                if (outerOwinContext.Authentication.User == null
+                    || forwardingEntry.AllowRoles == null
+                    || !forwardingEntry.AllowRoles.Any(role => outerOwinContext.Authentication.User.IsInRole(role)))
+                {
+                    outerOwinContext.Response.StatusCode = 403;
+                    outerOwinContext.Response.ReasonPhrase = "Forbidden";
+                    return;
+                }
+
                 var forwardingClient = new HttpClient();
 
-                var forwardingRequest = outerOwinContext.Request.CreateHttpRequestMessageFromRequest(host);
+                var forwardingRequest = outerOwinContext.Request.CreateHttpRequestMessageFromRequest(forwardingEntry.TargetHost);
                 
                 var cancellationTokenSource = new CancellationTokenSource(100000);
                 var cancellationToken = cancellationTokenSource.Token;
@@ -78,7 +88,6 @@ namespace Rob.ReverseProxy.Middleware
                 Console.WriteLine("UNHANDLED EXCEPTION:");
                 Console.WriteLine(sourceRequestInfo);
                 Console.WriteLine(e);
-                throw;
             }
         }
     }

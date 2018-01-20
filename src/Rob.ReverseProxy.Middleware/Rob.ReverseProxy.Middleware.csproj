@@ -50,6 +50,7 @@
     <Compile Include="Configuration\ForwardingEntryMap.cs" />
     <Compile Include="Configuration\ReverseProxyConfiguration.cs" />
     <Compile Include="ContentCopying\BitwiseCopyStrategy.cs" />
+    <Compile Include="ContentCopying\BufferedCopyStrategy.cs" />
     <Compile Include="ContentCopying\CopyStrategyFactory.cs" />
     <Compile Include="ContentCopying\ICopyStrategy.cs" />
     <Compile Include="ContentCopying\NonChunkedCopyStrategy.cs" />

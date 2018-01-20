@@ -28,8 +28,8 @@ namespace Rob.ReverseProxy.Middleware.ContentCopying
         public static ICopyStrategy GetCopyStrategy(HttpResponseMessage responseMessage)
         {
             return (responseMessage.Headers.TransferEncodingChunked.HasValue && responseMessage.Headers.TransferEncodingChunked.Value)
-                ? (ICopyStrategy)new BitwiseCopyStrategy()
-                : (ICopyStrategy)new NonChunkedCopyStrategy();
+                ? (ICopyStrategy)new BufferedCopyStrategy()
+                : (ICopyStrategy)new BufferedCopyStrategy();
         }
     }
 }

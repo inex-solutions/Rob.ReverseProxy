@@ -27,16 +27,16 @@ namespace Rob.ReverseProxy.Middleware.Configuration
 {
     public class ForwardingEntryMap
     {
-        private readonly Dictionary<string, string> _forwardingEntries;
+        private readonly Dictionary<string, ForwardingEntry> _forwardingEntries;
 
         public ForwardingEntryMap(IEnumerable<ForwardingEntry> forwardingEntries)
         {
-            _forwardingEntries = forwardingEntries.ToDictionary(fe => fe.SourceHost, fe => fe.TargetHost, StringComparer.OrdinalIgnoreCase);
+            _forwardingEntries = forwardingEntries.ToDictionary(fe => fe.SourceHost, fe => fe, StringComparer.OrdinalIgnoreCase);
         }
 
-        public string this[string sourceHost] => _forwardingEntries[sourceHost];
+        public ForwardingEntry this[string sourceHost] => _forwardingEntries[sourceHost];
 
-        public bool TryGetForwardingEntry(string sourceHost, out string targetHost)
+        public bool TryGetForwardingEntry(string sourceHost, out ForwardingEntry targetHost)
         {
             return _forwardingEntries.TryGetValue(sourceHost, out targetHost);
         }

@@ -34,7 +34,9 @@ namespace Rob.ReverseProxy.Service
         public void StartService(string[] args)
         {
             var startOptions = new StartOptions();
-            startOptions.Urls.Add("http://*:9900");
+            startOptions.Urls.Add("https://*:9800");  //netsh http add sslcert ipport=0.0.0.0:9800 appid={11C7C3C9-2D89-4E34-98DA-24175BFEFD0E} certhash=5a8580b09ec04120ed41392a75207dfc8ec6493f
+            startOptions.Urls.Add("https://*:9900");  //netsh http add sslcert ipport=0.0.0.0:9900 appid={11C7C3C9-2D89-4E34-98DA-24175BFEFD0E} certhash=5a8580b09ec04120ed41392a75207dfc8ec6493f
+            startOptions.Urls.Add("https://*:9901");  //netsh http add sslcert ipport=0.0.0.0:9901 appid={11C7C3C9-2D89-4E34-98DA-24175BFEFD0E} certhash=5a8580b09ec04120ed41392a75207dfc8ec6493f
             startOptions.Urls.Add("http://*:9999");
             WebApp.Start<Startup>(startOptions);
         }
