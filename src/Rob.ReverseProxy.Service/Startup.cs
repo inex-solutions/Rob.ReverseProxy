@@ -37,10 +37,9 @@ namespace Rob.ReverseProxy.Service
             {
                 ForwardingEntries = new[]
                 {
-
-                    new ForwardingEntry{SourceHost = "*:9800", TargetHost = "localhost:9090", AllowRoles = new []{"Reverse Proxy Users", "Reverse Proxy Users Too"}},
-                    new ForwardingEntry{SourceHost = "*:9900", TargetHost = "localhost:33333", AllowRoles = new []{"Reverse Proxy Users", "Reverse Proxy Users Too"}},
-                    new ForwardingEntry{SourceHost = "*:9901", TargetHost = "localhost:33633", AllowRoles = new []{"Reverse Proxy Users", "Reverse Proxy Users Too"}}
+                    new ForwardingEntry{SourceUrlMatch = @"^https?\://.*:9800/api.*$", TargetHost = "localhost:33333", AllowOnlyRoles = new [] {"Reverse Proxy Users"}},
+                    new ForwardingEntry{SourceUrlMatch = @"^https?\://.*:9800", TargetHost = "localhost:9090", AllowOnlyRoles = new [] {"Reverse Proxy Users"}},
+                    new ForwardingEntry{SourceUrlMatch = @"^https?\://.*:9901", TargetHost = "localhost:33633", AllowOnlyRoles = new [] {"Reverse Proxy Users"}},
                 }
             });
 

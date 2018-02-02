@@ -47,7 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\ForwardingEntry.cs" />
-    <Compile Include="Configuration\ForwardingEntryMap.cs" />
+    <Compile Include="Configuration\ForwardingEntryLookup.cs" />
     <Compile Include="Configuration\ReverseProxyConfiguration.cs" />
     <Compile Include="ContentCopying\BitwiseCopyStrategy.cs" />
     <Compile Include="ContentCopying\BufferedCopyStrategy.cs" />

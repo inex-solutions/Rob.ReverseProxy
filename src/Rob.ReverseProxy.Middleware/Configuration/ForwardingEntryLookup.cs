@@ -22,23 +22,27 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Rob.ReverseProxy.Middleware.Configuration
 {
-    public class ForwardingEntryMap
+    public class ForwardingEntryLookup
     {
-        private readonly Dictionary<string, ForwardingEntry> _forwardingEntries;
+        private readonly List<Tuple<Regex, ForwardingEntry>> _forwardingEntries;
 
-        public ForwardingEntryMap(IEnumerable<ForwardingEntry> forwardingEntries)
+        public ForwardingEntryLookup(IEnumerable<ForwardingEntry> forwardingEntries)
         {
-            _forwardingEntries = forwardingEntries.ToDictionary(fe => fe.SourceHost, fe => fe, StringComparer.OrdinalIgnoreCase);
+            _forwardingEntries = forwardingEntries
+                .Select(fe => new Tuple<Regex, ForwardingEntry>(new Regex(fe.SourceUrlMatch), fe))
+                .ToList();
         }
 
-        public ForwardingEntry this[string sourceHost] => _forwardingEntries[sourceHost];
+        public ForwardingEntry this[string sourceHost] => _forwardingEntries.FirstOrDefault(fe => fe.Item1.IsMatch(sourceHost))?.Item2;
 
         public bool TryGetForwardingEntry(string sourceHost, out ForwardingEntry targetHost)
         {
-            return _forwardingEntries.TryGetValue(sourceHost, out targetHost);
+            targetHost = this[sourceHost];
+            return targetHost != null;
         }
     }
 }

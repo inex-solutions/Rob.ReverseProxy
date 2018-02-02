@@ -34,12 +34,12 @@ namespace Rob.ReverseProxy.Middleware
     public class ReverseProxy
     {
         private readonly Func<IDictionary<string, object>, Task> _next;
-        private readonly ForwardingEntryMap _forwardingEntryMap;
+        private readonly ForwardingEntryLookup _forwardingEntryLookup;
 
         public ReverseProxy(Func<IDictionary<string, object>, Task> next, ReverseProxyConfiguration configuration)
         {
             _next = next;
-            _forwardingEntryMap = new ForwardingEntryMap(configuration.ForwardingEntries);
+            _forwardingEntryLookup = new ForwardingEntryLookup(configuration.ForwardingEntries);
         }
 
         public async Task Invoke(IDictionary<string, object> env)
@@ -50,20 +50,19 @@ namespace Rob.ReverseProxy.Middleware
                 var outerOwinContext = new OwinContext(env);
                 sourceRequestInfo = $"{outerOwinContext.Request.Method} {outerOwinContext.Request.Uri} ({outerOwinContext.Request.Context})";
 
-                ForwardingEntry forwardingEntry;
-                if (!_forwardingEntryMap.TryGetForwardingEntry(outerOwinContext.Request.Host.Value, out forwardingEntry)
-                    && !_forwardingEntryMap.TryGetForwardingEntry($"*:{outerOwinContext.Request.LocalPort}", out forwardingEntry))
+                if (!_forwardingEntryLookup.TryGetForwardingEntry(outerOwinContext.Request.Uri.ToString(), out ForwardingEntry forwardingEntry))
                 {
                     await _next.Invoke(env);
                     return;
                 }
 
-                if (outerOwinContext.Authentication.User == null
-                    || forwardingEntry.AllowRoles == null
-                    || !forwardingEntry.AllowRoles.Any(role => outerOwinContext.Authentication.User.IsInRole(role)))
+                if (forwardingEntry.AllowOnlyRoles != null 
+                    && (outerOwinContext.Authentication.User == null
+                    || !forwardingEntry.AllowOnlyRoles.Any(role => outerOwinContext.Authentication.User.IsInRole(role))))
                 {
                     outerOwinContext.Response.StatusCode = 403;
                     outerOwinContext.Response.ReasonPhrase = "Forbidden";
+                    outerOwinContext.Response.Write("403 - Forbidden");
                     return;
                 }
 
@@ -76,7 +75,7 @@ namespace Rob.ReverseProxy.Middleware
                 var forwardingResponse = await forwardingClient.SendAsync(forwardingRequest, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 
                 outerOwinContext.Response.UpdateOwinFromHttpResponseHeaders(forwardingResponse);
-            
+
                 if (forwardingResponse.Content != null)
                 {
                     var copyStrategy = CopyStrategyFactory.GetCopyStrategy(forwardingResponse);

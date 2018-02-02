@@ -22,10 +22,10 @@ namespace Rob.ReverseProxy.Middleware.Configuration
 {
     public class ForwardingEntry
     {
-        public string SourceHost { get; set; }
+        public string SourceUrlMatch { get; set; }
 
         public string TargetHost { get; set; }
 
-        public string[] AllowRoles { get; set; }
+        public string[] AllowOnlyRoles { get; set; }
     }
 }
