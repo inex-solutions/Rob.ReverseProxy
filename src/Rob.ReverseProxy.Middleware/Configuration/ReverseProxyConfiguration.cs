@@ -18,10 +18,28 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #endregion
+
+using System.Linq;
+
 namespace Rob.ReverseProxy.Middleware.Configuration
 {
     public class ReverseProxyConfiguration
     {
         public ForwardingEntry[] ForwardingEntries { get; set; }
+
+        public static ReverseProxyConfiguration Load(ReverseProxyConfigurationSection configSection)
+        {
+            return new ReverseProxyConfiguration
+            {
+                ForwardingEntries = configSection.FowardingEntries
+                    .Select(fe => new ForwardingEntry
+                    {
+                        SourceUrlMatch = fe.SourceUrlMatch,
+                        TargetHost = fe.TargetHost,
+                        AllowOnlyRoles = fe.AllowOnlyRoles?.Split(',').Select(s => s?.Trim()).ToArray()
+                    })
+                    .ToArray()
+            };
+        }
     }
 }

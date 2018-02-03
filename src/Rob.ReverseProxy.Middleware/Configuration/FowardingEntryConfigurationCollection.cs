@@ -19,25 +19,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #endregion
 
-using System.IO;
-using System.Net.Http;
-using System.Threading;
-using Microsoft.Owin;
+using System.Collections.Generic;
+using System.Configuration;
 
-namespace Rob.ReverseProxy.Middleware.ContentCopying
+namespace Rob.ReverseProxy.Middleware.Configuration
 {
-    public class BufferedCopyStrategy : ICopyStrategy
+    [ConfigurationCollection(typeof(ForwardingEntryConfigurationElement), AddItemName = "ForwardingEntry")]
+    public class FowardingEntryConfigurationCollection : ConfigurationElementCollection,
+        IEnumerable<ForwardingEntryConfigurationElement>
     {
-        public async void Copy(HttpResponseMessage source, IOwinResponse target, CancellationTokenSource cancellationTokenSource)
-        {
-            int read;
-            byte[] buffer = new byte[1024*1024];
-            Stream forwardingResponseStream = await source.Content.ReadAsStreamAsync();
+        protected override ConfigurationElement CreateNewElement() => new ForwardingEntryConfigurationElement();
 
-            while ((read = forwardingResponseStream.Read(buffer, 0, buffer.Length)) != 0)
+        protected override object GetElementKey(ConfigurationElement element) =>
+            ((ForwardingEntryConfigurationElement) element).SourceUrlMatch;
+
+        public IEnumerator<ForwardingEntryConfigurationElement> GetEnumerator()
+        {
+            foreach (var key in this.BaseGetAllKeys())
             {
-                cancellationTokenSource.CancelAfter(100000);
-                target.Body.Write(buffer, 0, read);
+                yield return (ForwardingEntryConfigurationElement) BaseGet(key);
             }
         }
     }

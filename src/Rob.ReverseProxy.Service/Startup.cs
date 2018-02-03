@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #endregion
 
+using System.Configuration;
 using System.Net;
 using System.Web.Http;
 using Microsoft.Owin.FileSystems;
@@ -33,15 +34,8 @@ namespace Rob.ReverseProxy.Service
     {
         public void Configuration(IAppBuilder app)
         {
-            app.UseReverseProxy(new ReverseProxyConfiguration
-            {
-                ForwardingEntries = new[]
-                {
-                    new ForwardingEntry{SourceUrlMatch = @"^https?\://.*:9800/api.*$", TargetHost = "localhost:33333", AllowOnlyRoles = new [] {"Reverse Proxy Users"}},
-                    new ForwardingEntry{SourceUrlMatch = @"^https?\://.*:9800", TargetHost = "localhost:9090", AllowOnlyRoles = new [] {"Reverse Proxy Users"}},
-                    new ForwardingEntry{SourceUrlMatch = @"^https?\://.*:9901", TargetHost = "localhost:33633", AllowOnlyRoles = new [] {"Reverse Proxy Users"}},
-                }
-            });
+            var configuration = (ReverseProxyConfiguration.Load((ReverseProxyConfigurationSection)ConfigurationManager.GetSection("ReverseProxyConfiguration")));
+            app.UseReverseProxy(configuration);
 
             HttpListener listener = (HttpListener)app.Properties["System.Net.HttpListener"];
             listener.AuthenticationSchemes = AuthenticationSchemes.IntegratedWindowsAuthentication;

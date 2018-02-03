@@ -19,26 +19,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #endregion
 
-using System.IO;
-using System.Net.Http;
-using System.Threading;
-using Microsoft.Owin;
+using System.Configuration;
 
-namespace Rob.ReverseProxy.Middleware.ContentCopying
+namespace Rob.ReverseProxy.Middleware.Configuration
 {
-    public class BufferedCopyStrategy : ICopyStrategy
+    public class ReverseProxyConfigurationSection : ConfigurationSection
     {
-        public async void Copy(HttpResponseMessage source, IOwinResponse target, CancellationTokenSource cancellationTokenSource)
-        {
-            int read;
-            byte[] buffer = new byte[1024*1024];
-            Stream forwardingResponseStream = await source.Content.ReadAsStreamAsync();
-
-            while ((read = forwardingResponseStream.Read(buffer, 0, buffer.Length)) != 0)
-            {
-                cancellationTokenSource.CancelAfter(100000);
-                target.Body.Write(buffer, 0, read);
-            }
-        }
+        [ConfigurationProperty("ForwardingEntries", IsRequired = true)]
+        public FowardingEntryConfigurationCollection FowardingEntries =>
+            base["ForwardingEntries"] as FowardingEntryConfigurationCollection;
     }
 }
